@@ -1,4 +1,5 @@
 import React, { Component } from 'react';
+import { ActivityIndicator } from 'react-native';
 import PropTypes from 'prop-types';
 
 import api from '../../services/api';
@@ -19,29 +20,60 @@ import {
 class User extends Component {
   state = {
     stars: [],
+    loading: true,
+    page: 1,
+    refreshing: false,
   };
 
   static propTypes = {
     route: PropTypes.shape({
       params: PropTypes.shape({
-        user: PropTypes.string,
+        user: PropTypes.shape({
+          login: PropTypes.string,
+          avatar: PropTypes.string,
+          name: PropTypes.string,
+          bio: PropTypes.string,
+        }),
       }),
     }).isRequired,
   };
 
   async componentDidMount() {
-    const { route } = this.props;
+    this.load();
+  }
 
+  load = async (page = 1) => {
+    const { stars } = this.state;
+    const { route } = this.props;
     const { user } = route.params;
 
-    const response = await api.get(`users/${user.login}/starred`);
+    const response = await api.get(`users/${user.login}/starred`, {
+      params: { page },
+    });
 
-    this.setState({ stars: response.data });
-  }
+    this.setState({
+      stars: page >= 2 ? [...stars, ...response.data] : response.data,
+      page,
+      loading: false,
+      refreshing: false,
+    });
+  };
+
+  loadMore = async () => {
+    const { page } = this.state;
+
+    const nextPage = page + 1;
+
+    this.load(nextPage);
+  };
+
+  refreshList = async () => {
+    this.setState({ refreshing: true }, this.load);
+  };
 
   render() {
     const { route } = this.props;
-    const { stars } = this.state;
+    const { stars, loading, refreshing } = this.state;
     const { user } = route.params;
 
     return (
@@ -52,19 +84,27 @@ class User extends Component {
           <Bio>{user.bio}</Bio>
         </Header>
 
-        <Stars
-          data={stars}
-          keyExtractor={star => String(star.id)}
-          renderItem={({ item }) => (
-            <Starred>
-              <OwnerAvatar source={{ uri: item.owner.avatar_url }} />
-              <Info>
-                <Title>{item.name}</Title>
-                <Author>{item.owner.login}</Author>
-              </Info>
-            </Starred>
-          )}
-        />
+        {loading ? (
+          <ActivityIndicator color="#ccc" size={80} />
+        ) : (
+          <Stars
+            data={stars}
+            keyExtractor={star => String(star.id)}
+            onEndReachedThreshold={0.2}
+            onEndReached={this.loadMore}
+            onRefresh={this.refreshList}
+            refreshing={refreshing}
+            renderItem={({ item }) => (
+              <Starred>
+                <OwnerAvatar source={{ uri: item.owner.avatar_url }} />
+                <Info>
+                  <Title>{item.name}</Title>
+                  <Author>{item.owner.login}</Author>
+                </Info>
+              </Starred>
+            )}
+          />
+        )}
       </Container>
     );
   }
