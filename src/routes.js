@@ -25,7 +25,11 @@ function Routes() {
           title: 'Usuários',
         }}
       />
-      <Screen name="User" component={User} />
+      <Screen
+        name="User"
+        component={User}
+        options={({ route }) => ({ title: route.params.user.name })}
+      />
     </Navigator>
   );
 }
