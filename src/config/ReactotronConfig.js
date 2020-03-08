@@ -7,6 +7,7 @@ if (__DEV__) {
     .setAsyncStorageHandler(AsyncStorage)
     .connect();
 
+  // eslint-disable-next-line no-console
   console.tron = tron;
 
   tron.clear();
