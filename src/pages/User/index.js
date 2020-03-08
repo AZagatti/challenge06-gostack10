@@ -36,6 +36,9 @@ class User extends Component {
         }),
       }),
     }).isRequired,
+    navigation: PropTypes.shape({
+      navigate: PropTypes.func,
+    }).isRequired,
   };
 
   async componentDidMount() {
@@ -71,6 +74,12 @@ class User extends Component {
     this.setState({ refreshing: true }, this.load);
   };
 
+  handleNavigate = repository => {
+    const { navigation } = this.props;
+
+    navigation.navigate('Repository', { repository });
+  };
+
   render() {
     const { route } = this.props;
     const { stars, loading, refreshing } = this.state;
@@ -95,7 +104,7 @@ class User extends Component {
             onRefresh={this.refreshList}
             refreshing={refreshing}
             renderItem={({ item }) => (
-              <Starred>
+              <Starred onPress={() => this.handleNavigate(item)}>
                 <OwnerAvatar source={{ uri: item.owner.avatar_url }} />
                 <Info>
                   <Title>{item.name}</Title>
