@@ -56,4 +56,4 @@ This project is under the MIT license. See the [LICENSE](LICENSE.md) for more in
 
 ---
 
-Made with 💟 by André Zagatti 👋 [Talk to me!](https://www.linkedin.com/in/andr%C3%A9-luis-zagatti-adorna/)
+Made with 💟 by André Zagatti 👋 [Talk to me!](https://www.linkedin.com/in/andre-zagatti)
